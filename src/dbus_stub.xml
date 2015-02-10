@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/it/clockworks/rtxdriver">
+
+  <interface name="it.clockworks.rtxdriver.calls">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_phone"/>
+    <method name="Call">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_phone_call"/>
+      <arg type="s" name="caller" direction="in" />
+    </method>
+    <method name="Hangup">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_phone_hangup"/>
+    </method>
+    <method name="Accept">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_phone_accept"/>
+      <arg type="s" name="caller" direction="in" />
+    </method>
+    <signal name="StateChanged">
+        <arg type="u" name="state"/>
+    </signal>
+    <signal name="RequestedCall">
+        <arg type="s" name="dest"/>
+    </signal>
+    <!--
+    <method name="NotifyContact">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_dbus_phone_notify_contact"/>
+      <arg type="s" name="contact" direction="in" />
+      <arg type="u" name="status" direction="in" />
+      <arg type="u" name="result" direction="out" />
+    </method>
+    <method name="NotifySelf">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_dbus_phone_notify_self"/>
+      <arg type="s" name="account" direction="in" />
+      <arg type="u" name="status" direction="in" />
+      <arg type="u" name="result" direction="out" />
+    </method>
+    <method name="GetStatus">
+      <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="rtx_dbus_phone_get_status"/>
+      <arg type="u" name="status" direction="out" />
+    </method>
+    -->
+  </interface>
+</node>

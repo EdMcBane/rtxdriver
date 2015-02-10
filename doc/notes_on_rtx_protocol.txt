@@ -1,0 +1,471 @@
+upd_v0148-v0151.log  (20060127 10:08)(20060804 10:08)
+
+aggiornamenti periodici:
+Tipo Ii - pipe 01 
+X e Z aumentano ad ogni update
+Y cambia raramente, sembra il tipo di messaggio
+XXXXYYYY ZZZZZZZZ ZZZZZZZZ*14
+
+
+
+
+phone out of cradle
+3202007900
+
+   0: 32 02 00 79 00                                      2 . . y .                               
+
+   0: 00110010 00000010 00000000 01111001 00000000 
+_______________________________________
+phone into cradle
+4202007901
+
+   0: 42 02 00 79 01                                      B . . y .                               
+
+   0: 01000010 00000010 00000000 01111001 00000001 
+_______________________________________
+phone out of cradle
+b202007900
+
+   0: b2 02 00 79 00                                      . . . y .                               
+
+   0: 10110010 00000010 00000000 01111001 00000000 
+_______________________________________
+phone into cradle
+c202007901
+
+   0: c2 02 00 79 01                                      . . . y .                               
+
+   0: 11000010 00000010 00000000 01111001 00000001 
+_______________________________________
+
+
+
+
+PC button with no skype
+primo nibble è il solito counter
+02060050 5f1500ff ff303030 30303030
+
+   0: 02 06 00 50 5f 15 00 ff  ff 30 30 30 30 30 30 30    . . . P _ . . .  . 0 0 0 0 0 0 0        
+
+   0: 00000010 00000110 00000000 01010000 01011111 00010101 00000000 11111111 11111111 00110000 00110000 00110000 00110000 00110000 00110000 00110000 
+_______________________________________
+82060050 6f1500ff ff
+
+   0: 82 06 00 50 6f 15 00 ff  ff                         . . . P o . . .  .                      
+
+   0: 10000010 00000110 00000000 01010000 01101111 00010101 00000000 11111111 11111111 
+_______________________________________
+
+
+
+
+CON IL 2 E CON IL 3 la numerazione è sovrascritta
+CON IL 1, 4 E CON IL 6 NO
+
+
+
+SETUP PACKET 00 05 = set address
+
+
+entra nel menu: nn è crescente per ogni "entrata" nel menu
+x2 05 00 64  nn 01 18 00 << talvolta
+x2 05 00 64  nn 01 01 00 << spesso
+
+
+
+----------------------------------------
+progressivo inizializzato a 0, wrap ogni 16
+progressivo#2 inizializzato a 1, wrap ogni 255
+
+
+
+TIPO 0:
+x0 nn nn*14
+x = progressivo
+0 = tipo
+nn = progressivo #2
+
+TIPO 1:
+x1 nn nn*14
+x = progressivo
+1 = tipo
+nn = progressivo #2
+
+TIPO 2:
+x = progressivo
+2 = tipo
+LL = lunghezza da qua in poi
+CC = sottotipo
+.. .. .. = dati
+!! !! = padding
+
+x2 LL 00 CC .. .. .. .. .. .. !! !! 
+
+
+TIPO 3:
+x = progressivo
+3 = tipo
+.. .. = dati
+!! !! !! = padding
+x3 .. .. .. .. .. !! !! !! 
+
+TIPO 4:
+x = progressivo
+4 = tipo
+nn = progressivo #2
+
+x4 nn nn*14
+
+
+
+INIZIALIZZAZIONE
+H <-0- D 	INIZIO USO CANALE Interrupt
+H -0-> D
+H <-1- D
+H <-0- D
+H -1-> D
+
+H -2.40-> D
+H <-2.41- D
+H -2.75-> D 
+H <-2.77- D
+H -2.78-> D
+H <-2.79- D
+H -2.62-> D  TIME_UPD
+H -2.70-> D
+H <-2.71- D
+<START questa parte può essere ripetuta più volte con #5 elemento diverso (10-11, 12-13, etc)>
+H -2.72-> D     
+H <-2.73- D     
+<STOP>
+H -2.60-> D     
+H -2.60-> D     
+
+H -6-> D	A REGIME
+H <-7- D
+... e continua così
+
+
+
+
+CHIAMATA
+H <-2.50- D 	PRESSIONE PC
+H -2.51-> D
+H -2.5d-> D
+H -2.5d-> D
+H -2.53-> D
+
+H -2.54-> D     INIZIO CHIAMATA (AUDIO)
+H -2.55-> D
+H <-2.56- D
+H -2.5a-> D
+
+H <-2.57- D     HANGUP
+H -2.58-> D
+
+
+
+
+CHIAMATA
+H -2.50-> D 	ARRIVO CHIAMATA
+H <-2.53- D
+
+H <-2.54- D     RISPOSTA
+H <-2.55- D
+H <-2.56- D
+H -2.5a-> D
+
+H <-2.57- D     HANGUP
+H -2.58-> D
+
+
+
+
+
+
+
+
+
+
+
+...
+
+
+Vari tipi:
+
+0 setup ? formato analogo a 4,6,7
+1 setup ? formato analogo a 4,6,7
+2 comando generico 
+3 continuazione comando precedente
+4 ack ?
+5 mai visto
+6 solo Io, ping ?, appare solo quando non ci sono altri comandi
+7 solo Ii, ping ?, appare solo quando non ci sono altri comandi
+
+
+
+SOTTOTIPI 2:
+
+##### INIT #######	
+	2.40 GET_ID_QUERY
+		DIR: H
+		DESCR: generato dal driver come primo comando
+		LEN: 4
+		DATA: 		05 00 00 00
+		DATA DIG: 	05 00 00 00
+
+	2.41 GET_ID_RESPONSE
+		DIR: D
+		DESCR: generato dal phone in risposta a 2.40
+		LEN: 8
+		DATA: 		9a 0d 04 00 32 01 00 01
+		DATA DIG: 	vv vv pp pp 32 01 rr rr 
+			vv = vendor ID
+			pp = product ID
+			rr = revision ??
+		
+	2.75
+		DIR: H 
+		DESCR: generato dal driver come secondo comando
+		LEN: 0
+		
+	2.77 
+		DESCR: generato dal phone in risposta a 2.75
+		LEN: D
+		DATA: 		0a
+		DATA DIG: 	0a
+
+	2.78
+		DIR: H
+		DESCR: generato dal driver come terzo comando
+		LEN: 0
+		
+	2.79
+		DIR: D
+		DESCR: generato dal phone in risposta a 2.78
+		LEN: 1
+		DATA: 		01
+		DATA DIG: 	01
+
+	2.70 
+		DIR: H
+		DESCR: generato dal driver come quinto comando
+		LEN: 3
+		DATA: 		12 00 00
+		DATA DIG: 	12 00 00
+
+	2.71
+		DIR: D 
+		DESCR: generato dal phone in risposta a 2.70
+		LEN: 31
+		DATA: 		13 00 00 02 01 00 01 04 00 9a 0d 00 51 08 00 01 06 08 04 10 08 .. .. ..
+		DATA DIG: 	13 00 00 02 01 00 01 pp pp vv vv 00 51 08 00 01 06 08 04 10 08 .. .. .. 
+			pp = product id
+			vv = vendor id
+			.. = stringa identificativa	
+
+
+	2.72
+		DIR: H
+		DESCR: generato dal driver come sesto comando
+		LEN: 3
+		DATA: 		10 00 00
+		DATA DIG: 	nn 00 00
+			nn = BOH ??? (10, 12)
+
+	2.73 
+		DESCR: generato dal phone in risposta a 2.72
+		<nn = 10>
+		LEN: 4
+		DATA: 		11 00 01 00
+		DATA DIG:	11 00 01 00
+		<nn = 12>
+		LEN: 1a
+		DATA: 		13 00 00 00 00 00 00 05 00 9a 0d 00 21 09 00 01 06 08 04 10 30 56 30 31 35 31
+		DATA DIG:   13 00 00 00 00 00 00 05 00 vv vv 00 21 09 00 01 06 08 04 10 .. .. .. .. .. ..
+			vv = vendor id
+			.. = "0V0151"
+
+
+	2.60 SELF_STATUS
+		DESCR: generato dal driver alla fine dell'inizializzazione
+		LEN: 6
+		DATA:		03 53 4b 59 50 45
+		DATA DIG:	nn .. .. .. .. ..
+			nn = status (online etc come 2.61)
+			.. = "SKYPE" (PROMPT ?)
+
+
+	2.61 USER_STATUS
+		DESCR: 
+		LEN: 16
+		DATA:		01 03 00 05 .. .. ..
+		DATA DIG:	01 yy 00 xx .. .. ..
+			yy = ??? 01,03
+			xx = 05 online, 03 offline, 06 away, 0e skype me, 0b N/A, 0c DND
+			.. = "francesco.degrassi"
+	
+	2.50 NEW_CALL
+		DIR: DH
+		DESCR: generato dal telefono premendo PC ma anche premendo CALL su una voce nella history
+		<PC>
+			LEN: 5
+			DATA: 		3f 15 00 ff ff
+			DATA DIG: 	nf 15 00 ff ff
+				n = progressivo chiamata telefono
+		<CALL>
+			LEN: 15
+			DATA: 		4f 15 00 ff ff 3c 63 66 20 69 3d 22	
+			DATA DIG: 	nf 15 00 ff ff .. .. .. .. .. .. ..
+				n = progressivo chiamata telefono
+				.. = stringa nel formato <cf i=1">1</cf>
+		
+		<INCOMING CALL>
+			LEN: 17 
+			DATA:		fe 06 01 03 00 66 72 61 6e 63 65 73 63 6f 2e 64 65 67 72 61 73 73 69
+			DATA DIG:	fm xx 01 03 00 .. .. ..
+				xx = 06,15,05 ??? (06 era un'incoming)
+				.. .. .. = "nome chiamante"
+
+
+	2.51 READY_FOR_CALL
+		DIR: H
+		DESCR: generato dal driver in risposta al 2.50 
+		<PC>
+			LEN: 2
+			DATA: 		32 15
+			DATA DIG: 	n2 15
+				n = progressivo chiamata telefono
+				m = progressivo chiamata PC
+				nm = ID chiamata
+
+
+	2.52  KEY PRESSED (usato anche come "chiama questo numero") 
+		DIR: D
+		LEN: 2
+		DATA: 		1b 31 32 33
+		DATA DIG:	nm xx
+			xx = keys (in ascii)
+
+	
+	
+	2.53 RINGING 
+		DESCR: generato dal driver dopo 2.5d
+		LEN: 2 
+		DATA: 		43 15
+		DATA DIG:	nm xx
+			xx = 05, 15 ???  MASK ?
+
+	2.54 ANSWERED
+		DESCR: 
+		LEN: 2 
+		DATA: 		43 15
+		DATA DIG:	nm xx
+			xx = 05, 15 ???  MASK ?
+	
+
+	2.55 IN PROGRESS
+		DESCR: generato dal driver dopo 2.5d
+		LEN: 2 
+		DATA: 		43 15
+		DATA DIG:	nm xx
+			xx = 05, 15 ???  MASK ?
+			
+
+
+	2.56 IN_PROGRESS_OK
+		DESCR: generato dal phone dopo 2.55
+		LEN: 2 
+		DATA: 		43 15
+		DATA DIG:	nm xx
+			xx = 05, 15 ???  MASK ?
+			
+
+	2.59 XML_CHAT
+		DIR: DH	
+		DESCR: generato dal telefono dopo 2.50-2.51 e dal driver in risposta
+		LEN: b
+		DATA: 		32 3c 72 6c 3e 31 3c 2f 72 6c 3e
+		DATA DIG:   nm .. .. .. .. .. .. .. .. .. ..
+			nm = ID chiamata
+			1. PHONE->HOST: .. = stringa nel formato '<rl>1</rl>'
+			2. HOST->PHONE: .. = stringa nel formato '<km>1</km>'
+			3. HOST->PHONE: .. = stringa nel formato '<l e="1"><f i="1" s="1">Echo / Sound Test Service</f></l>
+
+	2.5a START_STOP_TALKING
+		DIR: DH
+		DESCR: generato da driver dopo 2.56 e dal phone a hangup
+		<FROM H>
+		LEN: 4
+		DATA: 		43 06 00 00
+		DATA DIG: 	nm 06 00 00
+		<FROM D>
+		LEN: 2
+		DATA:		43 03
+		DATA DIG:   nm 03
+			
+
+	2.5d CALL_STATUS ????
+		DESCR: generato dal telefono dopo 2.51 PC
+		LEN: 1d
+		DATA:		43 01 01 00 45 63 68 6f 20 2f 20 53
+		DATA DIG:	nm xx 01 00 .. .. .. ..
+			.. = "Echo / Sound Test Service" (numero/destinatario)
+			xx = 01 in progress, 02 failed	
+	
+	2.57 DO_HANGUP
+		DESCR: generato dal telefono dopo 2.50-2.51    2.59-2.59    2.5a
+		LEN: 2
+		DATA: 		32 00
+		DATA DIG:   nm 00
+			nm = ID chiamata
+
+	2.58 DONE_HANGUP
+		DESCR: generato dal driver in risposta a 2.57
+		LEN: 1
+		DATA: 		32
+		DATA DIG:   nm 
+			nm = ID chiamata
+
+	2.62 TIME_UPD
+		DIR: H	
+		DESCR: Generato dal driver ogni tot
+		LEN: e
+		DATA:		6a 08 10 15 34 2b 48 2e 6d 6d 2e 73 73 00
+		DATA DIG:	YY MM DD hh mm 2b .. .. .. .. .. .. .. ..
+			YY = anni dal 1900
+			MM = mese (1 based)
+			DD = giorno del mese (1 based)
+			hh = ore (24)
+			mm = minuti
+			.. = "H\x2emm\x2ess\x00
+	
+	2.64:
+		DIR: D
+		DESCR: generato dal telefono quando viene selezionato col tasto giu un diverso elemento dell'elenco utenti
+		LEN: 4
+		DATA: 		2c 01 18 00
+		DATA DIG: 	xx 01 yy 00
+			xx = incrementale, contatore dei comandi tipo 2.64
+			yy = 01 per la prima chiamata, 18 alla seconda, 09 alla terza (id chiamata history ??)
+			
+	2.65:
+		DIR: H
+		DESCR: generato dal driver in risposta al #64 
+		LEN: 5
+		DATA: 		2c 01 18 00 01
+		DATA DIG: 	xx 01 yy 00 zz 
+			xx = come nel messaggio 2.64 associato
+			yy = come nel messaggio 2.64 associato
+			zz = 01 o 03 se non c'è "?" e 05 se c'è (sembra si tratti se SKYPE ha la chiamata nella history o meno)
+	
+	
+	2.79 ON_OFF_HOOK
+		DIR: D
+		DESCR: generato dal telefono quando portato on/off hook
+		LEN: 1
+		DATA: 		00
+		DATA DIG: 	nn
+			nn = 00 (off hook) oppure 01 (on hook)
+	
+

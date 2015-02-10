@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+               "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- Created by parsewiki $Revision: 1.29 $ -->
+<title>RTX Skype DualPhone USB driver for linux</title>
+</head>
+<body>
+
+
+<h2>RTX Skype DualPhone USB driver for linux </h2>
+
+
+<h3>INTRO </h3>
+
+<p>
+This is a driver for the RTX Skype DualPhone USB phone for Linux, obtained entirely studying the traffic between the phone and the MS Windows driver.  The driver runs in userspace, using libusb, so no kernel recompile is necessary. Development was made on a Ubuntu Dapper system.
+The driver connects to the phone via libusb/usbfs, connects to the user's session DBUS bus and is available for use by any voip application (for which a connector has been written). Currently the only plugin available is for Ekiga.
+It was tested only on a Ubuntu Dapper 6.06 LTS system, kernel 2.6.15, but should work on a broad range of systems
+</p>
+<p>
+<strong>WARNING</strong>
+The code is sometimes ugly and hacked, since it was developed while reverse engineering the protocol spoken on the USB bus.
+Please understand that at the moment it is NOT usable by the faint of heart, you should be know what you are doing if you try to use it.
+</p>
+<p>
+I REPEAT: this is work in progress, not a clean finished product. It is meant for experienced linux people who want to experiment with it and are willing to help.  I take no responsibility for any problem / damage / illness this source could 
+cause you.
+</p>
+<p>
+Expect it to fail, crash, explode, steal your soul etc...
+</p>
+<p>
+Download it: <a href="rtxdriver-0.01.tgz">rtxdriver-0.01.tgz</a>
+</p>
+
+<h3>FEATURES </h3>
+
+<p>
+Supported features:
+</p>
+<ul>
+<li><p>Calling out simple numbers from the phone</p></li>
+<li><p>Ringing and accepting / rejecting incoming calls</p></li>
+<li><p>Updating phone clock</p></li>
+</ul>
+<p>
+Partially supported features:
+</p>
+<ul>
+<li><p>Getting on/off hook (phone base) notifications (missing dbus signal)</p></li>
+<li><p>Notifying the phone of contacts' status (missing dbus method)</p></li>
+</ul>
+<p>
+Unsupported features:
+</p>
+<ul>
+<li><p>Call on hold</p></li>
+<li><p>Address book navigation / call, xml-like dialect (bad stinking example code is in the docs folder)</p></li>
+<li><p>Called numbers redial (uses same xml-like dialect)</p></li>
+</ul>
+
+<h3>CONTENTS </h3>
+
+<dl>
+<dt>doc</dt>
+<dd><p>Documentation</p></dd>
+<dt>misc</dt>
+<dd><p>Miscellaneous dev tools and scripts, udev rules</p></dd>
+<dt>plugins</dt>
+<dd><p>VOIP app plugins (only Ekiga for now)</p></dd>
+<dt>src</dt>
+<dd><p>Source code for the phone driver</p></dd>
+</dl>
+
+<h3>BUILD </h3>
+
+<p>
+You'll need several libraries to build the binary, here are the package names for debian/ubuntu:
+</p>
+<ul>
+<li><p>libusb-dev</p></li>
+<li><p>libglib2.0-dev</p></li>
+<li><p>libdbus-1-dev</p></li>
+<li><p>libdbus-glib-1-dev</p></li>
+</ul>
+<p>
+To actually compile:
+</p>
+<ol>
+<li><p>cd /tmp; tar zxvf rtxdriver-0.01.tgz</p></li>
+<li><p>cd rtxdriver-0.01</p></li>
+<li><p>cd src</p></li>
+<li><p>make</p></li>
+</ol>
+<p>
+Please note that you will need a DBUS enabled version of Ekiga to experiment.
+The default Ekiga binary for Dapper has DBUS support disabled, to enable it you should recompile it using the "--enable-dbus" configure option.
+</p>
+<p>
+Here is how i did it:
+</p>
+<pre>
+   $&gt; apt-get source ekiga
+   $&gt; cd ekiga-2.xxx
+   $&gt; cd debian
+   $&gt; vi rules
+</pre>
+<p>
+add "--enable-dbus" to the configure invocation and save file
+</p>
+<pre>
+   $&gt; vi changelog
+</pre>
+<p>
+add this text (or similar) to the head of the changelog file
+WITHOUT THE "------ START" stuff. 
+Notice how i simply appended ".dbus1" to the previous version.
+</p>
+<pre>
+ --------- START
+ ekiga (2.0.1-0ubuntu6.dbus1) dapper; urgency=low
+</pre>
+<pre>
+   * debian/rules:
+     - enabled dbus support
+</pre>
+<pre>
+  -- root &lt;root@localhost.localdomain&gt;  Thu, 24 Aug 2006 22:41:21 +0200
+ --------- STOP
+</pre>
+<pre>
+   $&gt; cd ..
+   $&gt; dpkg-buildpackage -b
+   $&gt; dpkg -i ekiga*.deb
+</pre>
+
+<h3>SETUP </h3>
+
+<p>
+<strong>IMPORTANT</strong> The following instructions are meant for an Ubuntu Dapper system.  If you use another distro (why would you ??), you'll probably need to tweak a thing or two.
+</p>
+<p>
+For the driver to work for a standard user (not root), you will need to tell udev to grant read and write permissions to users of group plugdev to the usb device files.
+</p>
+<p>
+To do so:
+</p>
+<pre>
+ $&gt; sudo copy misc/50-rtxdriver.rules /etc/udev/rules.d/
+ $&gt; addgroup YOUR_USER plugdev
+</pre>
+<p>
+and reboot
+</p>
+<p>
+Alternatively you could do something like this (<strong>but it is NOT secure at all</strong>)
+</p>
+<pre>
+ $&gt; chmod -R 777 /dev/bus/usb
+</pre>
+<p>
+<strong>WARNING</strong>
+USING THE DRIVER AS ROOT WILL PROBABLY NOT WORK, SINCE THE USER'S SESSION DBUS WILL NOT BE ACCESSIBLE FROM ROOT. THE DRIVER IS MEANT TO BE LAUNCHED WITH THE PERMISSIONS OF THE USER. 
+</p>
+<p>
+IF YOU KNOW BETTER, BE MY GUEST.
+</p>
+
+<h3>USAGE </h3>
+
+<ul>
+<li><p>Start the driver in a shell from your user session:</p></li>
+</ul>
+<pre>
+   $&gt; ./rtxdriver
+</pre>
+<ul>
+<li><p>Start Ekiga (MUST HAVE DBUS SUPPORT)</p></li>
+<li><p>Start the ekiga-rtx plugin from another shell, specifing the destination voip server for outgoing calls</p></li>
+</ul>
+<pre>
+   $&gt; python ekiga-rtx-plugin.py fwd.pulver.com
+</pre>
+<ul>
+<li><p>Try to call out a number, ekiga should start a call to number@fwd.pulver.com</p></li>
+<li><p>When called, the phone should ring and it should be possible to answer</p></li>
+</ul>
+
+<h3>DEVELOPMENT </h3>
+
+<p>
+The system works like this:
+</p>
+<pre>
+ PHONE     &lt;-libusb-&gt;  RTXDRIVER  
+ RTXDRIVER &lt;-DBUS-&gt;  ekiga-rtx-plugin  &lt;-DBUS-&gt;  Ekiga
+ RTXDRIVER &lt;-DBUS-&gt;  skype-rtx-plugin  &lt;-DBUS-&gt;  Skype
+ RTXDRIVER &lt;-DBUS-&gt;  .....             &lt;-????-&gt;   ....
+</pre>
+<p>
+In this way adding support for more voip apps is a simple matter of writing a 
+python script to handle the bridging and DBUS communication.
+</p>
+<p>
+To troubleshoot the stuff, you should:
+</p>
+<ul>
+<li><p>Recompile kernel with support for debugfs and usbmon (as module)</p></li>
+<li><p>Mount debugfs in /sys/kernel/debug</p></li>
+<li><p>modprobe usbmon</p></li>
+<li><p>cat /sys/kernel/debug/usbmon/1t  (or whatever bus your phone is connected to)</p></li>
+<li><p>save the traffic to dump.log</p></li>
+<li><p>use the phone, make it crash, whatever</p></li>
+<li><p>cat dump.log | python edump.py # it will provide a decent decoded output</p></li>
+</ul>
+<p>
+To dump the traffic between the phone and the windows driver, i used VMWare player running inside my linux box and used the above method to dump the traffic
+</p>
+<p>
+I hope to be able to clean up and provide with a real end user package as soon as possible.
+</p>
+<p>
+I am very open to suggestions, fixes and help. Feel free to contact me for assistance, but please no "what is this kernel thing you all speak about" kind of questions.
+</p>
+<p>
+Francesco Degrassi
+</p>
+<p>
+francesco.degrassi@gmail.com
+</p>
+<pre>
+ This site best viewed wearing glasses.
+ Authored with the oh, so powerful VIM editor
+</pre>
+
+
+
+</body>
+</html>

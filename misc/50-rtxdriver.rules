@@ -1,0 +1,8 @@
+# udev rules for RTX DRIVER
+#
+SUBSYSTEM!="usb_device", GOTO="rtxdriver_rules_end"
+
+# RTX DualPhone USB
+SYSFS{idVendor}=="0d9a", SYSFS{idProduct}=="0004", GROUP="plugdev", MODE="0660"
+
+LABEL="rtxdriver_rules_end"
